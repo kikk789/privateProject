@@ -1,0 +1,103 @@
+settingUpdateModal{
+    overflow: hidden;
+    touch-action: none;
+}
+.settingUpdateBtn {
+    position: absolute;
+    left: 20px; top:100px;
+
+}
+.settingUpdateBtn1{
+    position: absolute;
+    left: 20px; top:100px;
+}
+
+.layer-popup {
+    display: none;
+    z-index: 100;
+
+}
+.layer-popup.show {
+    display: block;
+    width: 150px;
+    height: 150px;
+
+}
+
+.modal-dialog {
+    background-color: white;
+    box-shadow: 1px 1px 3px 1px #dadce0;
+}
+
+.modal-content {
+    padding:10px 15px;
+    text-align: center;
+    box-shadow: 1px 1px 1px 1px #dadce0;
+}
+
+.layer-popup1 {
+    display: none;
+    z-index: 200;
+
+}
+
+.layer-popup1.show {
+    display: block;
+    width: 500px;
+}
+
+.modal-dialog1 {
+    background-color: white;
+    box-shadow: 1px 1px 3px 1px #dadce0;
+
+}
+
+.modal-content1 {
+    padding:10px 15px;
+    text-align: center;
+    box-shadow: 1px 1px 1px 1px #dadce0;
+}
+
+.tdBoardTitle {
+    text-align: center;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow: ellipsis;
+    width: 700px;
+    max-width: 700px;
+}
+
+.tdBoardContent {
+    text-align: center;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow: ellipsis;
+    width: 700px;
+    max-width: 700px;
+    color: #6c757d;
+    /*font-size: 13px;*/
+}
+
+/*.hiddenBoardTitle {*/
+/*    text-align: center;*/
+/*    overflow:hidden;*/
+/*    white-space:nowrap;*/
+/*    text-overflow: ellipsis;*/
+/*    width: 700px;*/
+/*    max-width: 700px;*/
+/*}*/
+
+/*.hiddenBoardContent {*/
+/*    text-align: center;*/
+/*    overflow:hidden;*/
+/*    white-space:nowrap;*/
+/*    text-overflow: ellipsis;*/
+/*    width: 700px;*/
+/*    max-width: 700px;*/
+/*    color: #6c757d;*/
+/*    !*font-size: 13px;*!*/
+/*}*/
+
+td {
+    height: 50px;
+}

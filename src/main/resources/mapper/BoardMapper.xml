@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="board">
+    <resultMap id="boardVO" type="boardVO">
+        <result column="board_id" property="boardId"/>
+        <result column="board_title" property="boardTitle"/>
+        <result column="board_content" property="boardContent"/>
+        <result column="board_reg_date" property="boardRegDate"/>
+        <result column="board_up_date" property="boardUpdate"/>
+        <result column="board_url" property="boardUrl"/>
+        <result column="mem_id" property="memId"/>
+        <result column="hit" property="hit"/>
+        <result column="thumbnail" property="thumbnail"/>
+    </resultMap>
+
+    <insert id="insertBoard" parameterType="hashmap" useGeneratedKeys="true" keyProperty="boardId">
+        <selectKey keyProperty="boardId" resultType="Integer" order="BEFORE">
+            select board_seq.nextval as boardId from dual
+        </selectKey>
+        insert
+            into board
+                (
+                board_id
+                <if test="boardTitle !=null ">, board_title</if>
+                , mem_id
+                <if test="boardContent !=null ">, board_content</if>
+                ,board_reg_date
+                <if test="boardUrl !=null ">, board_url</if>
+                ,hit
+                ,thumbnail
+                )
+            values
+                (
+                ${boardId}
+                <if test="boardTitle !=null ">, #{boardTitle[0]}</if>
+                <if test="memId !=null ">, #{memId[0]}</if>
+                <if test="boardContent !=null ">, #{boardContent[0]}</if>
+                ,sysdate
+                <if test="boardUrl !=null ">, #{boardUrl[0]}</if>
+                ,1
+                ,#{thumbnail[0]}
+                )
+    </insert>
+    <update id="updateBoard" parameterType="hashmap">
+        update board
+        set
+        board_title=#{boardTitle[0]}
+        ,board_content=#{boardContent[0]}
+        ,board_up_date=sysdate
+        where board_id=#{boardId[0]}
+
+    </update>
+
+    <select id="selectBoard" resultMap="boardVO" parameterType="hashMap">
+
+        select * from
+            (
+                SELECT ROWNUM AS RNUM, A.* FROM
+                    (select board_id, board_title, board_content, board_reg_date, board_up_date, board_url, mem_id, hit, thumbnail
+                     from board
+                     where 1=1
+                       <if test="searchKeywordText !=null">
+                           and (board_title like '%${searchKeywordText}%'
+                            or board_content like '%${searchKeywordText}%'
+                            or mem_id like '%${searchKeywordText}%')
+                       </if>
+                     order by board_reg_date desc) A
+
+        <![CDATA[
+        where ROWNUM <= #{endPage}
+            )
+        where RNUM >= #{startPage}
+        ]]>
+    </select>
+
+    <select id="selectBoardOneById" resultMap="boardVO" parameterType="hashMap">
+
+        select * from
+        (
+        SELECT ROWNUM AS RNUM, A.* FROM
+        (select board_id, board_title, board_content, board_reg_date, board_up_date, board_url, mem_id, hit, thumbnail
+        from board
+        where 1=1
+        <if test="memId !=null">
+            and mem_id = #{memId}
+        </if>
+        <if test="searchKeywordText !=null">
+            and (board_title like '%${searchKeywordText}%'
+            or board_content like '%${searchKeywordText}%'
+            or mem_id like '%${searchKeywordText}%')
+        </if>
+        order by board_reg_date desc) A
+
+        <![CDATA[
+        where ROWNUM <= #{endPage}
+            )
+        where RNUM >= #{startPage}
+        ]]>
+    </select>
+
+<!--    디테일 페이지에서 사용, 우측 동영상 리스트 (페이징 필요)-->
+    <select id="selectBoardDetail" resultMap="boardVO" parameterType="hashMap">
+
+        select * from board order by board_reg_date desc
+    </select>
+
+    <select id="selectBoardOne" resultMap="boardVO" parameterType="java.lang.Integer">
+        select * from board where board_id=#{boardId}
+    </select>
+
+<!--    조회수 늘리기 -->
+    <update id="updateBoardOne" >
+        update board set hit=hit+1 where board_id=#{boardId}
+    </update>
+
+    <delete id="deleteBoardList">
+        delete board where board_id=#{boardId}
+    </delete>
+
+
+
+
+</mapper>

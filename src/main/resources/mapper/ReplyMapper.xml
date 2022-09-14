@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="reply">
+    <resultMap id="replyVO" type="replyVO">
+        <result column="reply_id" property="replyId"></result>
+        <result column="reply_content" property="replyContent"></result>
+        <result column="reply_group" property="replyGroup"></result>
+        <result column="reply_depth" property="replyDepth"></result>
+        <result column="reply_parent" property="replyParent"></result>
+        <result column="reply_order" property="replyOrder"></result>
+        <result column="reply_date" property="replyDate"></result>
+        <result column="reply_update" property="replyUpdate"></result>
+        <result column="mem_id" property="memId"></result>
+        <result column="board_id" property="boardId"></result>
+    </resultMap>
+
+
+    <insert id="insertReply" parameterType="hashmap" useGeneratedKeys="true" keyProperty="replyId" >
+        <selectKey keyProperty="replyId" resultType="Integer" order="BEFORE">
+            select reply_seq.nextval from dual
+        </selectKey>
+        insert into reply
+        (
+            reply_id,
+            reply_content,
+            reply_group,
+            reply_depth,
+            reply_parent,
+            reply_order,
+            reply_date,
+            reply_update,
+            mem_id,
+            board_id
+        )
+        values(
+            ${replyId},
+            #{replyContent[0]},
+            (select nvl(max(reply_group),0)+1 from reply),
+            0,
+            0,
+            1,
+            sysdate,
+            sysdate,
+            #{memId[0]},
+            #{boardId[0]}
+        )
+
+    </insert>
+
+    <insert id="insertReReply" parameterType="hashmap" useGeneratedKeys="true" keyProperty="replyId" >
+        <selectKey keyProperty="replyId" resultType="Integer" order="BEFORE">
+            select reply_seq.nextval from dual
+        </selectKey>
+        insert into reply
+        (
+            reply_id,
+            reply_content,
+            reply_group,
+            reply_depth,
+            reply_parent,
+            reply_order,
+            reply_date,
+            reply_update,
+            mem_id,
+            board_id
+        )
+        values(
+            ${replyId},
+            #{replyContent[0]},
+            #{replyGroup[0]},
+            #{replyDepth[0]},
+            #{replyParent[0]},
+            #{replyOrder[0]},
+            sysdate,
+            sysdate,
+            #{memId[0]},
+            #{boardId[0]}
+        )
+
+    </insert>
+
+<!--    대댓글 달때 조건에 맞는 행의 order +1 씩-->
+    <update id="updateReplyOrder" parameterType="hashmap">
+        update reply set
+            reply_order  = reply_order +1
+        where reply_group=#{replyGroup[0]} and not reply_id = #{replyId[0]}
+        and reply_order >= #{replyOrder[0]}
+
+  </update>
+
+  <select id="listReply" resultMap="replyVO" parameterType="hashmap">
+      SELECT * FROM
+      (
+      SELECT ROWNUM AS RNUM, A.* FROM
+      (select reply_id, reply_content, reply_group, reply_depth, reply_parent, reply_order, reply_date, reply_update,
+      mem_id, board_id
+      from reply
+      where reply_depth=0 and board_id =#{boardId}
+      order by reply_date desc) A
+
+      <![CDATA[
+       where ROWNUM <= #{endPage}
+      )
+      where RNUM >= #{startPage}
+      ]]>
+
+  </select>
+
+  <select id="listReReply" resultMap="replyVO" parameterType="hashMap">
+      select * from reply
+               where reply_group=#{replyGroup}
+          <if test="replyId !=null">
+              and not reply_id=#{replyId}
+          </if>
+      order by reply_order asc ,reply_depth desc
+  </select>
+
+<!--    대댓글 작성자 파악 용 -->
+  <select id="getReplyMemId" resultType="string">
+      select mem_id from reply where reply_id in (select reply_parent from reply where reply_id = #{replyId})
+  </select>
+
+    <update id="updateReply" parameterType="hashmap">
+        update reply set reply_content =#{replyContent[0]}
+        where reply_id=#{replyId[0]} and mem_id=#{memId[0]}
+    </update>
+
+    <delete id="deleteReply">
+        delete reply where reply_id=#{replyId}
+    </delete>
+
+    <delete id="deleteReReply">
+        delete reply where reply_parent=#{replyId}
+    </delete>
+
+    <select id="totalReplyCount">
+        select count(*) from reply;
+    </select>
+
+</mapper>

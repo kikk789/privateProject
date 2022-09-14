@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="member">
+    <resultMap id="memberVO" type="memberVO">
+        <result column="mem_id" property="memId"></result>
+        <result column="mem_name" property="memName"></result>
+        <result column="password" property="password"></result>
+        <result column="auth" property="auth"></result>
+        <result column="regist_date" property="registDate"></result>
+        <result column="update_date" property="updateDate"></result>
+        <result column="regist_id" property="registId"></result>
+        <result column="update_id" property="updateId"></result>
+        <result column="regist_ip" property="registIp"></result>
+        <result column="update_ip" property="updateIp"></result>
+        <result column="email" property="email"></result>
+        <result column="mem_img" property="memImg"></result>
+        <result column="mem_sex" property="memSex"></result>
+        <result column="wanttosay" property="wantToSay"></result>
+    </resultMap>
+
+    <insert id="insertMember" parameterType="hashmap">
+        insert
+            into member
+                (
+                    mem_id
+                    ,mem_name
+                    ,password
+                     <if test="auth!=null" >,auth </if>
+                    ,regist_date
+                    ,update_date
+                    <if test="registId!=null" >,regist_id</if>
+                    <if test="updateId!=null" >,update_id</if>
+                    <if test="registId!=null" >,regist_ip</if>
+                    <if test="updateId!=null" >,update_ip </if>
+                    ,email
+                    <if test="memImg!=null" >,mem_img</if>
+                    ,mem_sex
+                )
+                values
+                (
+                   #{memId[0]}
+                   ,#{memName[0]}
+                   ,#{password[0]}
+                    <if test="auth!=null" >,#{auth[0[}</if>
+                   ,sysdate
+                   ,sysdate
+                    <if test="registId!=null" >,#{registId[0]}</if>
+                    <if test="updateId!=null" >,#{updateId[0]} </if>
+                    <if test="registId!=null" >,#{registIp[0]}</if>
+                    <if test="updateId!=null" >,#{updateIp[0]}</if>
+                   ,#{email[0]}
+                    <if test="memImg!=null" >,#{memImg[0]}</if>
+                   ,#{memSex[0]}
+                )
+    </insert>
+    <select id="loginCheck" resultMap="memberVO" parameterType="hashmap">
+        select * from member where mem_id=#{memId[0]} and password=#{password[0]}
+    </select>
+
+    <select id="findByNoMember" resultMap="memberVO">
+        select * from member where mem_id=#{memId[0]}
+    </select>
+    <update id="updateProfile" parameterType="hashmap">
+        update member
+        set
+        mem_name =#{memName[0]},
+        password = #{memPwd[0]},
+        email = #{email[0]},
+        <if test="memImg!=null" >
+            mem_img = #{uploadFile[0]},
+        </if>
+        wanttosay = #{wantToSay[0]},
+        update_date = sysdate
+        where
+        mem_id=#{memId[0]}
+
+    </update>
+
+</mapper>
